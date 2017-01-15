@@ -7,7 +7,7 @@ preferences {
 }
 
 metadata {
-    definition (name:"AirScape Fan", namespace:"me.overly", author:"timothy@overly.me") {
+    definition (name:"AirScape Fan", namespace:"overly.me", author:"timothy@overly.me") {
         capability "Switch"
     }
 
@@ -19,7 +19,6 @@ metadata {
 
 def installed() {
     log.info title()
-    sendEvent([name:'status', value:'off', displayed:false])
 }
 
 def on() {
@@ -29,5 +28,5 @@ def off() {
 }
 
 private def title() {
-    return "AirScape Fan Device Copyright © 2017 Timothy Overly"
+    return "AirScape Whole House Fan - Copyright © 2017 Timothy Overly"
 }
