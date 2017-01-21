@@ -25,9 +25,17 @@ metadata {
         capability "Switch"
         capability "Switch Level"
         capability "Polling"
+        capability "Power Meter"
+
+        attribute "timeRemaining", "number"
+        attribute "atticTemperature", "number"
+        attribute "outsideTemperature", "number"
+        attribute "insideTemperature", "number"
+        attribute "cfm", "number"
 
         command "levelUp"
 		command "levelDown"
+        command "addTime"
     }
 
 	tiles(scale: 2) {
@@ -37,19 +45,54 @@ metadata {
     		state "on", label: '${currentValue}', action: "switch.off", icon: "st.Lighting.light24", backgroundColor: "#79b821"
 		}
 
+        valueTile("timer", "device.timeRemaining", width: 2, height: 2) {
+			state "timeRemaining", label: 'Timer: ${currentValue}'
+		}
+
+        valueTile("power", "device.power", width: 2, height: 2) {
+			state "power", label: 'Power: ${currentValue}'
+		}
+
+        valueTile("timer", "device.timeRemaining", width: 2, height: 2) {
+			state "timeRemaining", label: 'Timer: ${currentValue}'
+		}
+
+        valueTile("cfm", "device.cfm", width: 2, height: 2) {
+			state "cfm", label: 'CFM: ${currentValue}'
+		}
+
+        standardTile("refresh", "device.refresh", width: 2, height: 2) {
+ 		   	state "refresh", label: 'Refresh', action: "refresh", backgroundColor: "#ffffff"
+		}
+
+        valueTile("outsideTemperature", "device.outsideTemperature", width: 2, height: 2) {
+			state "outsideTemperature", label: 'Outside Temp: ${currentValue}'
+		}
+        valueTile("atticTemperature", "device.atticTemperature", width: 2, height: 2) {
+			state "atticTemperature", label: 'Attic Temp: ${currentValue}'
+		}
+        valueTile("insideTemperature", "device.insideTemperature", width: 2, height: 2) {
+			state "insideTemperature", label: 'Inside Temp: ${currentValue}'
+		}
+
         multiAttributeTile(name:"controlPanel", type:"generic", width:6, height:4) {
     		tileAttribute("device.level", key: "PRIMARY_CONTROL") {
         		attributeState "default", label:'${currentValue}', backgroundColors:[
-            		[value: 0, color: "#000000"],
-            		[value: 1, color: "#000022"],
-            		[value: 2, color: "#111144"],
-            		[value: 3, color: "#111166"],
-            		[value: 4, color: "#222288"],
-            		[value: 5, color: "#2222aa"],
-                    [value: 6, color: "#3333cc"],
-            		[value: 7, color: "#3333ee"]
+            		[value: 0, color: "#444444"],
+            		[value: 1, color: "#444466"],
+            		[value: 2, color: "#444477"],
+            		[value: 3, color: "#444488"],
+            		[value: 4, color: "#444499"],
+            		[value: 5, color: "#4444bb"],
+                    [value: 6, color: "#4444dd"],
+            		[value: 7, color: "#4444ff"]
         		]
     		}
+
+            tileAttribute("device.timeRemaining", key: "SECONDARY_CONTROL") {
+        		attributeState "timer", label:'Add Time', action:"addTime"
+			}
+
 
     		tileAttribute("device.level", key: "VALUE_CONTROL") {
         		attributeState "VALUE_UP", action: "levelUp"
@@ -58,13 +101,23 @@ metadata {
 		}
 
         main "switch"
-        details(["switch", "controlPanel"])
+        details(["controlPanel", "timer", "power", "cfm","insideTemperature","atticTemperature", "outsideTemperature", "refresh"])
     }
 
 }
 
 def initialize() {
     state.levelAtOff = 0
+    refresh()
+}
+
+def refresh(){
+    sendEvent(name: "cfm", value: 2341)
+    sendEvent(name: "power", value: 389)
+    sendEvent(name: "timeRemaining", value: 0)
+    sendEvent(name: "insideTemperature", value: 75.1)
+    sendEvent(name: "atticTemperature", value: 130)
+    sendEvent(name: "outsideTemperature", value: 90)
 }
 
 def levelUp(){
@@ -92,6 +145,13 @@ def levelDown(){
     	}
      	return getSendCodeAction(3)
 	}
+}
+
+def addTime(){
+    def time = device.latestValue("timeRemaining") as Integer ?: 0
+    time++
+    sendEvent(name: "timeRemaining", value: time)
+	return getSendCodeAction(2)
 }
 
 def on() {
