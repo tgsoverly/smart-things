@@ -40,23 +40,25 @@ var currentTimer = 0;
 
 app.get('/fanspd.cgi', function (req, res) {
   if(req.query.dir){
-    console.log("dir "+req.query.dir);
     switch (req.query.dir) {
       case "1":
         if(currentSpeed<7){
           currentSpeed++;
+          console.log("speed increased");
         }
         break;
       case "2":
         currentTimer+=60;
-        console.error("timer increased");
+        console.log("timer increased");
         break;
       case "3":
         if(currentSpeed>0){
           currentSpeed--;
+          console.log("speed decreased");
         }
         break;
       case "4":
+        console.log("fan off");
         currentSpeed = 0;
         break;
       default:
@@ -68,14 +70,19 @@ app.get('/fanspd.cgi', function (req, res) {
   if(currentSpeed==0){
     currentTimer = 0;
   }
+
+  var rand1 = Math.random() * (1.1 - 0.9) + 0.9;
+  var rand2 = Math.random() * (1.1 - 0.9) + 0.9;
+  var rand3 = Math.random() * (1.1 - 0.9) + 0.9;
+
   var body = [
-    {fanspd:currentSpeed}, 
+    {fanspd:currentSpeed},
     {timeremaining:currentTimer},
-    {cfm: 2345.1},
-    {power: 345.3},
-    {attic_temp:123.3},
-    {oa_temp:72.3},
-    {house_temp:85.3}
+    {cfm: 1241.4*currentSpeed},
+    {power: 20.4*currentSpeed},
+    {attic_temp:123.3*rand1},
+    {oa_temp:72.3*rand2},
+    {house_temp:85.3*rand3}
   ];
   res.set('Content-Type', 'text/xml');
   res.send(xml({reponse: body}));

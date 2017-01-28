@@ -6,13 +6,11 @@
 * Questions:
 * 1. Timer have an upper limit?
 *
-* Todo:
-* 1. Have state turn on/off with level
-*
 * Notes:
 * 1. Command object have to return hub action
 * 1. Your hub must be selected in the device
  */
+import groovy.util.XmlSlurper
 
 preferences {
         input("ip", "string", title:"IP Address", description: "IP of Fan", defaultValue: "10.0.1.3", required: false, displayDuringSetup: true)
@@ -22,20 +20,27 @@ preferences {
 metadata {
     definition (name:"AirScape WHF", namespace:"overly.me", author:"timothy@overly.me") {
         capability "Refresh"
+
         capability "Switch"
         capability "Switch Level"
-        capability "Polling"
         capability "Power Meter"
 
+        //Basic measurment is the attic temperature, that is more useful because outside and and house temps are common elsewhere.
+        capability "Temperature Measurement"
+
         attribute "timeRemaining", "number"
-        attribute "atticTemperature", "number"
         attribute "outsideTemperature", "number"
         attribute "insideTemperature", "number"
         attribute "cfm", "number"
 
+		//Note: naming this 'status' seemed to interfere with some hidden smartthings variable
+		attribute "statusOfUpdate", "enum", ["updating", "ready"]
+
         command "levelUp"
 		command "levelDown"
         command "addTime"
+        command "maximum"
+
     }
 
 	tiles(scale: 2) {
@@ -62,17 +67,21 @@ metadata {
 		}
 
         standardTile("refresh", "device.refresh", width: 2, height: 2) {
- 		   	state "refresh", label: 'Refresh', action: "refresh", backgroundColor: "#ffffff"
+ 		   	state "refresh", label:"Refresh", action: "refresh", backgroundColor: "#ffffff", icon: "st.secondary.refresh-icon"
 		}
 
         valueTile("outsideTemperature", "device.outsideTemperature", width: 2, height: 2) {
-			state "outsideTemperature", label: 'Outside Temp: ${currentValue}'
+			state "outsideTemperature", label: 'Outside: ${currentValue}'
 		}
-        valueTile("atticTemperature", "device.atticTemperature", width: 2, height: 2) {
-			state "atticTemperature", label: 'Attic Temp: ${currentValue}'
+        valueTile("atticTemperature", "device.temperature", width: 2, height: 2) {
+			state "temperature", label: 'Attic: ${currentValue}'
 		}
         valueTile("insideTemperature", "device.insideTemperature", width: 2, height: 2) {
-			state "insideTemperature", label: 'Inside Temp: ${currentValue}'
+			state "insideTemperature", label: 'Inside: ${currentValue}'
+		}
+
+        standardTile("maximum", "device.level", width: 2, height: 2) {
+ 		   	state "level", label:"Max", action: "maximum", backgroundColor: "#ffffff", icon: "st.thermostat.thermostat-up"
 		}
 
         multiAttributeTile(name:"controlPanel", type:"generic", width:6, height:4) {
@@ -89,8 +98,9 @@ metadata {
         		]
     		}
 
-            tileAttribute("device.timeRemaining", key: "SECONDARY_CONTROL") {
-        		attributeState "timer", label:'Add Time', action:"addTime"
+            tileAttribute("device.statusOfUpdate", key: "SECONDARY_CONTROL") {
+        		attributeState "ready", label:'+ Timer', action:"addTime"
+                attributeState "updating", label:'Updating...'
 			}
 
 
@@ -101,7 +111,7 @@ metadata {
 		}
 
         main "switch"
-        details(["controlPanel", "timer", "power", "cfm","insideTemperature","atticTemperature", "outsideTemperature", "refresh"])
+        details(["controlPanel", "timer", "power", "cfm","insideTemperature","atticTemperature", "outsideTemperature", "refresh", "maximum", "switch"])
     }
 
 }
@@ -112,23 +122,18 @@ def initialize() {
 }
 
 def refresh(){
-    sendEvent(name: "cfm", value: 2341)
-    sendEvent(name: "power", value: 389)
-    sendEvent(name: "timeRemaining", value: 0)
-    sendEvent(name: "insideTemperature", value: 75.1)
-    sendEvent(name: "atticTemperature", value: 130)
-    sendEvent(name: "outsideTemperature", value: 90)
+	return getSendCodeAction()
+}
+
+def maximum(){
+	log.debug("airscape: maximum")
 }
 
 def levelUp(){
 	log.info("airscape: levelUp")
     def level = device.latestValue("level") as Integer ?: 0
-    if(level==0){
-    	sendEvent(name: "switch", value: "on")
-    }
 	if (level < 7) {
-        level = level + 1
-        setLevel(level)
+        sendEvent(name: "statusOfUpdate", value: "updating")
 		return getSendCodeAction(1)
 	}
 }
@@ -137,56 +142,60 @@ def levelDown(){
 	log.info("airscape: levelDown")
     def level = device.latestValue("level") as Integer ?: 0
 	if (level > 0) {
-		level = level - 1
-        setLevel(level)
+        sendEvent(name: "statusOfUpdate", value: "updating")
      	if(level==0){
         	state.levelAtOff = 1
-    		sendEvent(name: "switch", value: "off")
     	}
      	return getSendCodeAction(3)
 	}
 }
 
 def addTime(){
-    def time = device.latestValue("timeRemaining") as Integer ?: 0
-    time++
-    sendEvent(name: "timeRemaining", value: time)
+	log.debug("airscape: addTime")
+    sendEvent(name: "statusOfUpdate", value: "updating")
 	return getSendCodeAction(2)
 }
 
 def on() {
 	log.debug("airscape: on")
-    sendEvent(name: "level", value: 1)
-    sendEvent(name: "switch", value: "on")
-    return getSendCodeAction(4)
+    sendEvent(name: "statusOfUpdate", value: "updating")
+    return getSendCodeAction(1)
 }
 
 def off() {
 	log.debug("airscape: off")
+    sendEvent(name: "statusOfUpdate", value: "updating")
     state.levelAtOff = device.latestValue("levelAtOff") as Integer ?: 1
-    sendEvent(name: "switch", value: "off")
-    sendEvent(name: "level", value: 0)
     return getSendCodeAction(4)
 }
 
-def setLevel(speed) {
-	log.debug "setLevel: ${speed}"
-	sendEvent(name: "level", value: speed)
-}
+def parse(response) {
+	log.debug "airscape: parse"
+   	def msg = parseLanMessage(response)
 
-def parse(description) {
-	log.debug "parse"
-    def msg = parseLanMessage(description)
+	def events = []
 
-    def headersAsString = msg.header // => headers as a string
-    def headerMap = msg.headers      // => headers as a Map
-    def body = msg.body              // => request body as a string
-    def status = msg.status          // => http status code of the response
-    log.debug(body)
-}
+	if(msg.status==200){
+	    def xml = new XmlSlurper().parseText(msg.body)
+    	events.add createEvent(name: "cfm", value: xml.cfm)
+    	events.add createEvent(name: "power", value: xml.power)
+    	events.add createEvent(name: "timeRemaining", value: xml.timeremaining)
+    	events.add createEvent(name: "insideTemperature", value: xml.house_temp)
+    	events.add createEvent(name: "temperature", value: xml.attic_temp)
+    	events.add createEvent(name: "outsideTemperature", value: xml.oa_temp)
+    	events.add createEvent(name: "level", value: xml.fanspd)
+        if(xml.fanspd.toInteger()>0){
+	    	events.add createEvent(name: "switch", value: "on")
+		}else{
+	    	events.add createEvent(name: "switch", value: "off")
+        }
+    }else{
+    	log.error("error getting response from fan $msg")
+    }
 
-def poll(){
-  log.debug("polling airscape fan")
+	//set the updating indicator back to add time
+	events.add createEvent(name:"statusOfUpdate", value: "ready")
+    return events
 }
 
 // gets the address of the device
@@ -211,14 +220,14 @@ private String convertPortToHex(port) {
     return hexport
 }
 
-private getSendCodeAction(code){
+private getSendCodeAction(code=null){
   // where 1=fan speed up, 2=timer hour add, 3=fan speed down, 4=fan off
   log.debug("sending fan code ${code}")
 
   //setDeviceNetworkId(ip, port)
   def request = [
     method: "GET",
-    path: "/fanspd.cgi" + (code!=null ? "?dir=$code" : ""),
+    path: "/status.json.cgi" + (code!=null ? "?dir=$code" : ""),
     headers: [
         HOST: getHostAddress()
     ]
