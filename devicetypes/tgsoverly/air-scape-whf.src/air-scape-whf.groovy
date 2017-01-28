@@ -18,7 +18,7 @@ preferences {
 }
 
 metadata {
-    definition (name:"AirScape WHF", namespace:"overly.me", author:"timothy@overly.me") {
+    definition (name:"Air Scape WHF", namespace:"tgsoverly", author:"timothy@overly.me") {
         capability "Refresh"
 
         capability "Switch"
