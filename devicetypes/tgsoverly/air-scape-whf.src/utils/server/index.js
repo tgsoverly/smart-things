@@ -37,6 +37,9 @@ var xml = require('xml');
 
 var currentSpeed = 0;
 var currentTimer = 0;
+var cfm = 0;
+var temp = 0;
+var power = 0;
 
 app.get('/fanspd.cgi', function (req, res) {
   if(req.query.dir){
@@ -71,22 +74,38 @@ app.get('/fanspd.cgi', function (req, res) {
     currentTimer = 0;
   }
 
-  var rand1 = Math.random() * (1.1 - 0.9) + 0.9;
-  var rand2 = Math.random() * (1.1 - 0.9) + 0.9;
-  var rand3 = Math.random() * (1.1 - 0.9) + 0.9;
+  let rand = Math.random() * (1.1 - 0.9) + 0.9;
 
-  var body = [
-    {fanspd:currentSpeed},
-    {timeremaining:currentTimer},
-    {cfm: 1241.4*currentSpeed},
-    {power: 20.4*currentSpeed},
-    {attic_temp:123.3*rand1},
-    {oa_temp:72.3*rand2},
-    {house_temp:85.3*rand3}
-  ];
-  res.set('Content-Type', 'text/xml');
-  res.send(xml({reponse: body}));
+  cfm = 1241*currentSpeed;
+  power = 21*currentSpeed;
+  temp = parseInt(123*rand)
+
+  res.send(createResponse());
 })
+
+var createResponse(){
+  return `fanspd<fanspd>${currentSpeed}</fanspd>
+doorinprocess<doorinprocess>0</doorinprocess>
+timeremaining<timeremaining>${currentTimer}</timeremaining>
+macaddr<macaddr>60:CB:FB:00:12:A3</macaddr>
+ipaddr<ipaddr>192.168.1.6</ipaddr>
+model<model>3.5eWHF</model>
+softver: <softver>2.15.1</softver>
+interlock1: <interlock1>0</interlock1>
+interlock2: <interlock2>0</interlock2>
+cfm: <cfm>${cfm}</cfm>
+power: <power>${power}</power>
+inside: <house_temp>-99</house_temp>
+<DNS1>192.168.1.1</DNS1>
+attic: <attic_temp>${temp}</attic_temp>
+OA: <oa_temp>-99</oa_temp>
+server response: <server_response>XÿvÏ‰dõ†ß
+-“^¼0>°ü</server_response>
+DIP Switches: <DIPS>11100</DIPS>
+Remote Switch: <switch2>1111</switch2>
+Setpoint:<Setpoint>0</Setpoint>`
+}
+
 
 app.listen(3000, function () {
   console.log('Example app listening on port 3000!')
