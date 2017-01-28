@@ -83,7 +83,7 @@ app.get('/fanspd.cgi', function (req, res) {
   res.send(createResponse());
 })
 
-var createResponse(){
+var createResponse=function(){
   return `fanspd<fanspd>${currentSpeed}</fanspd>
 doorinprocess<doorinprocess>0</doorinprocess>
 timeremaining<timeremaining>${currentTimer}</timeremaining>

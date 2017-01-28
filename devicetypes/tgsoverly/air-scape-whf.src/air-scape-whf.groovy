@@ -227,7 +227,7 @@ private getSendCodeAction(code=null){
   //setDeviceNetworkId(ip, port)
   def request = [
     method: "GET",
-    path: "/status.json.cgi" + (code!=null ? "?dir=$code" : ""),
+    path: "/fanspd.cgi" + (code!=null ? "?dir=$code" : ""),
     headers: [
         HOST: getHostAddress()
     ]
