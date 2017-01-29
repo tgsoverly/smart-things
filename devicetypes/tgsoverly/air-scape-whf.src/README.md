@@ -36,6 +36,10 @@ If you are experienced in installing devices, the code is in step 1 below.  If y
 1. Click the "Create" button at the bottom.
 1. You will now have an AirScape Device on your mobile device.  The final step is to open that device, and click the settings button (small gear in the upper right).  Then input your IP address to the fan here.  You shouldn't need to change the port from 80.  Then click done and click the "Refesh" button to get your current fan status.
 
-# Todos
+# Issues
+
+If you have any questions or issues with this code, just open a GitHub issue above.  Please try to be as descriptive as possible.
+
+# Possible Improvements
 
 1. Maybe have the device do a port scan for the fan.
