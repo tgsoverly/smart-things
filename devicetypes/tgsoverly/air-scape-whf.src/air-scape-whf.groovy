@@ -13,7 +13,6 @@
 import groovy.util.XmlSlurper
 
 preferences {
-        input("ip", "string", title:"IP Address", description: "IP of Fan", defaultValue: "10.0.1.3", required: false, displayDuringSetup: true)
         input("port", "string", title:"Port", description: "Port of Fan", defaultValue: "80" , required: false, displayDuringSetup: true)
 }
 
@@ -176,7 +175,11 @@ def parse(response) {
 	def events = []
 
 	if(msg.status==200){
-	    def xml = new XmlSlurper().parseText(msg.body)
+      log.info(msg.body)
+      def body = msg.body
+      //clean the response
+
+	    def xml = new XmlSlurper().parseText(cleanResponse(msg.body))
     	events.add createEvent(name: "cfm", value: xml.cfm)
     	events.add createEvent(name: "power", value: xml.power)
     	events.add createEvent(name: "timeRemaining", value: xml.timeremaining)
@@ -184,11 +187,11 @@ def parse(response) {
     	events.add createEvent(name: "temperature", value: xml.attic_temp)
     	events.add createEvent(name: "outsideTemperature", value: xml.oa_temp)
     	events.add createEvent(name: "level", value: xml.fanspd)
-        if(xml.fanspd.toInteger()>0){
+      if(xml.fanspd.toInteger()>0){
 	    	events.add createEvent(name: "switch", value: "on")
-		}else{
+		  }else{
 	    	events.add createEvent(name: "switch", value: "off")
-        }
+      }
     }else{
     	log.error("error getting response from fan $msg")
     }
@@ -200,31 +203,23 @@ def parse(response) {
 
 // gets the address of the device
 private getHostAddress() {
-    return "${ip}:${port}"
+    return "${device.deviceNetworkId}:${port}"
 }
 
-private setDeviceNetworkId(ip,port){
-  	def iphex = convertIPtoHex(ip)
-  	def porthex = convertPortToHex(port)
-  	device.deviceNetworkId = "$iphex:$porthex"
-  	log.debug "Device Network Id set to ${iphex}:${porthex}"
-}
-
-private String convertIPtoHex(ipAddress) {
-    String hex = ipAddress.tokenize( '.' ).collect {  String.format( '%02x', it.toInteger() ) }.join()
-    return hex
-}
-
-private String convertPortToHex(port) {
-	String hexport = port.toString().format( '%04x', port.toInteger() )
-    return hexport
+public cleanResponse(body){
+  def regex = ~/(.*)<[^\/]/
+  // def regex = ~/.*/
+  def matcher = body =~ regex
+  body = body.replaceAll(regex){all, prefix ->
+    return all.replace(prefix, "")
+  }
+  return "<response>${body}</response>"
 }
 
 private getSendCodeAction(code=null){
   // where 1=fan speed up, 2=timer hour add, 3=fan speed down, 4=fan off
   log.debug("sending fan code ${code}")
 
-  //setDeviceNetworkId(ip, port)
   def request = [
     method: "GET",
     path: "/fanspd.cgi" + (code!=null ? "?dir=$code" : ""),

@@ -15,14 +15,26 @@ The capabilities that have been implemented are in this device type are:
 
 # Installation
 
-1. Log into your SmartThings online interface: https://graph.api.smartthings.com, this is the same that you use to log into the app on your phone/tablet.
-1. Create a new Device Handler.  This is a template on how to control AirScape fans.
-  1. Go to this (page)[https://raw.githubusercontent.com/tgsoverly/smart-things/master/devicetypes/tgsoverly/air-scape-whf.src/air-scape-whf.groovy]. Select all text (Ctrl-A or Cmd-A) and copy it (Ctrl-C or Cmd-A).
-  1. Click the link "My Device Handlers" at the top of the page.
-  1. Click the green "Create Device Handler" on the right side of the page.
-  1. Click the "From Code" tab and paste your clipboard (Ctrl-V or Cmd-V).
-  1. Click the "Create" button at the bottom.
-1. Create at least one actual AirScape Devices.  You may have more than one fan.
-  1. Click the link "My Devices" at the top of the page.
-  1. Click the green "New Device" on the right side of the page.
-  1. Fill in the form.  Give your device a name, the network id is required but can be anything.  Make sure you choose both a location and which hub is on the same network as the fan.
+You will need:
+1. Your SmartThings username and password to create this device, have those handy.
+1. The IP address of your AirScape fan.  The easiest way is generally to get that information from your router.
+
+If you are experienced in installing devices, the code is in step 1 below.  If you are new to this process, it involves two main steps.  First, creating what is called a "device handler", which is a blueprint on how to interact with a type of device. Second, creating at least one "device", which is actual instance of that type.
+
+1. Go to this (page)[https://raw.githubusercontent.com/tgsoverly/smart-things/master/devicetypes/tgsoverly/air-scape-whf.src/air-scape-whf.groovy]. Select all text (Ctrl-A or Cmd-A) and copy it (Ctrl-C or Cmd-A).  
+1. Go to the (create device handler page)[https://graph.api.smartthings.com/ide/device/create] and paste the code that you copied in the "From Code" tab
+1. Click the "Create" button at the bottom.
+1. Go to the (create device page)[https://graph.api.smartthings.com/device/create] and fill in the needed information
+1. Fill in the form.
+  1. Name: Anything you want
+  1. Device Network Id: This is the IP address of your fan usually something like: "192.168.0.x".
+  1. Type: AirScape WHF (it will be at the bottom)
+  1. Version: Published
+  1. Location: The location that contains the fan. (you probably only have one)
+  1. Hub: The hub that has network access to the fan. (you probably only have one)
+1. Click the "Create" button at the bottom.
+
+
+# Todos
+
+1. Have the device do a port scan for the fan.
