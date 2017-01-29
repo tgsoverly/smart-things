@@ -21,10 +21,10 @@ You will need:
 
 If you are experienced in installing devices, the code is in step 1 below.  If you are new to this process, it involves two main steps.  First, creating what is called a "device handler", which is a blueprint on how to interact with a type of device. Second, creating at least one "device", which is actual instance of that type.
 
-1. Go to this (page)[https://raw.githubusercontent.com/tgsoverly/smart-things/master/devicetypes/tgsoverly/air-scape-whf.src/air-scape-whf.groovy]. Select all text (Ctrl-A or Cmd-A) and copy it (Ctrl-C or Cmd-A).  
-1. Go to the (create device handler page)[https://graph.api.smartthings.com/ide/device/create] and paste the code that you copied in the "From Code" tab
+1. Go to this [page](https://raw.githubusercontent.com/tgsoverly/smart-things/master/devicetypes/tgsoverly/air-scape-whf.src/air-scape-whf.groovy). Select all text (Ctrl-A or Cmd-A) and copy it (Ctrl-C or Cmd-A).  
+1. Go to the [create device handler page](https://graph.api.smartthings.com/ide/device/create) and paste the code that you copied in the "From Code" tab
 1. Click the "Create" button at the bottom.
-1. Go to the (create device page)[https://graph.api.smartthings.com/device/create] and fill in the needed information
+1. Go to the [create device page](https://graph.api.smartthings.com/device/create) and fill in the needed information
 1. Fill in the form.
   1. Name: Anything you want
   1. Device Network Id: This is the IP address of your fan usually something like: "192.168.0.x".
@@ -37,4 +37,4 @@ If you are experienced in installing devices, the code is in step 1 below.  If y
 
 # Todos
 
-1. Have the device do a port scan for the fan.
+1. Maybe have the device do a port scan for the fan.
