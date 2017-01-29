@@ -16,6 +16,7 @@ The capabilities that have been implemented are in this device type are:
 # Installation
 
 You will need:
+
 1. Your SmartThings username and password to create this device, have those handy.
 1. The IP address of your AirScape fan.  The easiest way is generally to get that information from your router.
 
