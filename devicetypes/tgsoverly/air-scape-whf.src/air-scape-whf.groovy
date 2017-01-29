@@ -13,6 +13,7 @@
 import groovy.util.XmlSlurper
 
 preferences {
+        input("ip", "string", title:"IP", description: "IP of Fan", defaultValue: "192.168.0.2" , required: false, displayDuringSetup: true)
         input("port", "string", title:"Port", description: "Port of Fan", defaultValue: "80" , required: false, displayDuringSetup: true)
 }
 
@@ -126,6 +127,8 @@ def refresh(){
 
 def maximum(){
 	log.debug("airscape: maximum")
+
+    return getSendCodeAction(1)
 }
 
 def levelUp(){
@@ -183,9 +186,9 @@ def parse(response) {
     	events.add createEvent(name: "cfm", value: xml.cfm)
     	events.add createEvent(name: "power", value: xml.power)
     	events.add createEvent(name: "timeRemaining", value: xml.timeremaining)
-    	events.add createEvent(name: "insideTemperature", value: xml.house_temp)
+    	events.add createEvent(name: "insideTemperature", value: (xml.house_temp == -99 ? "N/A" : xml.house_temp))
     	events.add createEvent(name: "temperature", value: xml.attic_temp)
-    	events.add createEvent(name: "outsideTemperature", value: xml.oa_temp)
+    	events.add createEvent(name: "outsideTemperature", value: (xml.oa_temp == -99 ? "N/A" : xml.oa_temp))
     	events.add createEvent(name: "level", value: xml.fanspd)
       if(xml.fanspd.toInteger()>0){
 	    	events.add createEvent(name: "switch", value: "on")
@@ -220,6 +223,8 @@ private getSendCodeAction(code=null){
   // where 1=fan speed up, 2=timer hour add, 3=fan speed down, 4=fan off
   log.debug("sending fan code ${code}")
 
+  setDeviceNetworkId()
+
   def request = [
     method: "GET",
     path: "/fanspd.cgi" + (code!=null ? "?dir=$code" : ""),
@@ -230,6 +235,29 @@ private getSendCodeAction(code=null){
 
   return new physicalgraph.device.HubAction(request)
 }
+
+/**
+* This is required.  If the device network id doesn't match the ip address of the fan, then the response from the fan won't be
+* passed back to the device.  The easiest is just to set it to alway match the ip in the preferences.
+*/
+private setDeviceNetworkId(){
+  	def iphex = convertIPtoHex(ip)
+  	def porthex = convertPortToHex(port)
+  	device.deviceNetworkId = "$iphex:$porthex"
+  	log.debug "Device Network Id set to ${iphex}:${porthex}"
+}
+
+private String convertIPtoHex(ipAddress) {
+    String hex = ipAddress.tokenize( '.' ).collect {  String.format( '%02x', it.toInteger() ) }.join()
+    return hex
+
+}
+
+private String convertPortToHex(port) {
+	String hexport = port.toString().format( '%04x', port.toInteger() )
+    return hexport
+}
+
 private def title() {
     return "AirScape Whole House Fan - Copyright © 2017 Timothy Overly"
 }

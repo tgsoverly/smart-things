@@ -28,13 +28,13 @@ If you are experienced in installing devices, the code is in step 1 below.  If y
 1. Go to the [create device page](https://graph.api.smartthings.com/device/create) and fill in the needed information
 1. Fill in the form.
   1. Name: Anything you want
-  1. Device Network Id: This is the IP address of your fan usually something like: "192.168.0.x".
+  1. Device Network Id: Put anything in here, it will be updated by the device
   1. Type: AirScape WHF (it will be at the bottom)
   1. Version: Published
   1. Location: The location that contains the fan. (you probably only have one)
   1. Hub: The hub that has network access to the fan. (you probably only have one)
 1. Click the "Create" button at the bottom.
-
+1. You will now have an AirScape Device on your mobile device.  The final step is to open that device, and click the settings button (small gear in the upper right).  Then input your IP address to the fan here.  You shouldn't need to change the port from 80.  Then click done and click the "Refesh" button to get your current fan status.
 
 # Todos
 
