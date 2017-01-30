@@ -40,6 +40,10 @@ If you are experienced in installing devices, the code is in step 1 below.  If y
 
 You should always be aware of running your fan with insufficient ventilation.  This can cause back drafts with gas appliances.
 
+# Usage
+
+![buttons](https://cloud.githubusercontent.com/assets/482572/22425561/acf2612a-e6c9-11e6-9810-8465e07a1065.png)
+
 # Issues
 
 If you have any questions or issues with this code, just open a GitHub issue above.  Please try to be as descriptive as possible.
