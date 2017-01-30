@@ -10,4 +10,4 @@ This is a simple node server that pretends to be an AirScape fan.  Might be usef
 
 ## Url
 
-The server response at localhost:3000/fanspd.cgi.  The the server responds with the XML'ish responses that an actual fan produces.
+The server responds like a AirScape fan would do the the url: http://localhost:3000/fanspd.cgi.  The mock fan server responds with the XML'ish responses that an actual fan produces, it is suppose to be that way.
