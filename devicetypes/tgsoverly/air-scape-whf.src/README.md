@@ -42,6 +42,8 @@ You should always be aware of running your fan with insufficient ventilation.  T
 
 # Usage
 
+Below is a screen shot of what you should now see on your mobile device.  The top panel shows you the status and allows for you to increase/decrease fan speed and add time.
+
 ![buttons](https://cloud.githubusercontent.com/assets/482572/22425561/acf2612a-e6c9-11e6-9810-8465e07a1065.png)
 
 # Issues
