@@ -50,6 +50,6 @@ Below is a screen shot of what you should now see on your mobile device.  The to
 
 If you have any questions or issues with this code, just open a GitHub issue above.  Please try to be as descriptive as possible.
 
-# Possible Improvements
+# Improvements
 
-1. Maybe have the device do a port scan for the fan.
+Planned improvements can be found [here](https://github.com/tgsoverly/smart-things/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement)
