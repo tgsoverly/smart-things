@@ -28,11 +28,14 @@ Setpoint:<Setpoint>0</Setpoint>
   def "regex should clean response"(){
     when:
 
-      def script = new GroovyScriptEngine( 'devicetypes/tgsoverly/AirScapeWHF.src' ).with {
+      //To import devices types in the SmartThings IDE they need a specific file format
+      //That file format causes groovy class exceptions, so we copy the text to a new file.
+      def tempFile = new File("build/AirScapeWHF.groovy")
+      tempFile.text = new File("devicetypes/tgsoverly/air-scape-whf.src/air-scape-whf.groovy").text
+
+      def script = new GroovyScriptEngine( 'build' ).with {
         loadScriptByName( 'AirScapeWHF.groovy' )
       }
-
-      println script.metaClass.methods*.name.sort().unique()
 
       def clean = script.newInstance().cleanResponse(body)
       def xml = new XmlSlurper().parseText(clean)
