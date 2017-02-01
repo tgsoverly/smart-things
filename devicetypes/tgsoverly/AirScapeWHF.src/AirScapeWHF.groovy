@@ -12,7 +12,7 @@
  */
 import groovy.util.XmlSlurper
 
-private final String FAN_PATH = "/fanspd.cgi"
+final String FAN_PATH = "/fanspd.cgi"
 
 preferences {
         input("ip", "string", title:"IP", description: "IP of Fan", defaultValue: "192.168.0.2" , required: false, displayDuringSetup: true)
@@ -251,7 +251,7 @@ private getHostAddress() {
     return "${device.deviceNetworkId}:${port}"
 }
 
-public cleanResponse(body){
+public cleanResponse(String body){
   def regex = ~/(.*)<[^\/]/
   // def regex = ~/.*/
   def matcher = body =~ regex

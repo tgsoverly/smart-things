@@ -1,3 +1,8 @@
+import spock.lang.*
+import groovy.util.XmlSlurper
+
+class RegexTest extends Specification {
+
 def body = """fanspd<fanspd>7</fanspd>
 doorinprocess<doorinprocess>0</doorinprocess>
 timeremaining<timeremaining>0</timeremaining>
@@ -20,11 +25,19 @@ Remote Switch: <switch2>1111</switch2>
 Setpoint:<Setpoint>0</Setpoint>
 """
 
-def regex = ~/(.*)<[^\/]/
-// def regex = ~/.*/
-def matcher = body =~ regex
-body = body.replaceAll(regex){all, prefix ->
-  return all.replace(prefix, "")
+  def "regex should clean response"(){
+    when:
+
+      def script = new GroovyScriptEngine( 'devicetypes/tgsoverly/AirScapeWHF.src' ).with {
+        loadScriptByName( 'AirScapeWHF.groovy' )
+      }
+
+      println script.metaClass.methods*.name.sort().unique()
+
+      def clean = script.newInstance().cleanResponse(body)
+      def xml = new XmlSlurper().parseText(clean)
+    then:
+      xml.cfm == 8687
+      xml.fanspd == 7
+  }
 }
-body = "<response>${body}</response>"
-println body
