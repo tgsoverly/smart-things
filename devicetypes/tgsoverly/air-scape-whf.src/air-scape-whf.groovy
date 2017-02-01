@@ -12,6 +12,8 @@
  */
 import groovy.util.XmlSlurper
 
+private final String FAN_PATH = "/fanspd.cgi"
+
 preferences {
         input("ip", "string", title:"IP", description: "IP of Fan", defaultValue: "192.168.0.2" , required: false, displayDuringSetup: true)
         input("port", "string", title:"Port", description: "Port of Fan", defaultValue: "80" , required: false, displayDuringSetup: true)
@@ -128,7 +130,47 @@ def refresh(){
 def maximum(){
 	log.debug("airscape: maximum")
 
-    return getSendCodeAction(1)
+  sendEvent(name: "statusOfUpdate", value: "updating")
+
+  setToLevel(6)
+
+  //Trigger the last with the returned action so the response gets parsed
+  return getSendCodeAction(1)
+}
+
+private setToLevel(int targetLevel){
+
+  def level = device.latestValue("level") as Integer ?: 0
+
+  boolean increasing = targetLevel > level
+  boolean decreasing = targetLevel < level
+
+  if(!increasing && !decreasing){
+    return
+  }
+
+  def params = [
+      uri: getHostAddress(),
+      path: FAN_PATH+(increasing ? "?dir=1" : "?dir=3")
+  ]
+
+  boolean notToLevel = true
+
+  while(notToLevel){
+    try {
+        httpGet(params)
+    } catch (Exception e) {
+        log.error("Error setting maximum speed", e)
+    }
+    if(increasing){
+      level++
+      notToLevel = level < targetLevel
+    }else{
+      level--
+      notToLevel = level > targetLevel
+    }
+    Thread.sleep(200)
+  }
 }
 
 def levelUp(){
@@ -227,7 +269,7 @@ private getSendCodeAction(code=null){
 
   def request = [
     method: "GET",
-    path: "/fanspd.cgi" + (code!=null ? "?dir=$code" : ""),
+    path: FAN_PATH + (code!=null ? "?dir=$code" : ""),
     headers: [
         HOST: getHostAddress()
     ]
