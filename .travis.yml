@@ -3,5 +3,4 @@ language: groovy
 jdk:
   - oraclejdk8
 
-script:
-  - ./gradlew check
+script: ./gradlew test
