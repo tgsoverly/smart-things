@@ -1,7 +1,7 @@
 import spock.lang.*
 import groovy.util.XmlSlurper
 
-class RegexTest extends Specification {
+class RegexSpec extends Specification {
 
 def body = """fanspd<fanspd>7</fanspd>
 doorinprocess<doorinprocess>0</doorinprocess>

@@ -22,7 +22,7 @@ You will need:
 
 If you are experienced in installing devices, the code is in step 1 below.  If you are new to this process, it involves two main steps.  First, creating what is called a "device handler", which is a blueprint on how to interact with a type of device. Second, creating at least one "device", which is actual instance of that type.
 
-1. Go to this [page](https://raw.githubusercontent.com/tgsoverly/smart-things/master/devicetypes/tgsoverly/AirScapeWHF.src/AirScapeWHF.groovy). Select all text (Ctrl-A or Cmd-A) and copy it (Ctrl-C or Cmd-A).  
+1. Go to this [page](https://raw.githubusercontent.com/tgsoverly/smart-things/master/devicetypes/tgsoverly/air-scape-whf.src/air-scape-whf.groovy). Select all text (Ctrl-A or Cmd-A) and copy it (Ctrl-C or Cmd-A).  
 1. Go to the [create device handler page](https://graph.api.smartthings.com/ide/device/create) and paste the code that you copied in the "From Code" tab
 1. Click the "Create" button at the bottom.
 1. Go to the [create device page](https://graph.api.smartthings.com/device/create) and fill in the needed information

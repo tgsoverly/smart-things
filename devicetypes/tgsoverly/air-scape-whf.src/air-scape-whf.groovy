@@ -12,8 +12,6 @@
  */
 import groovy.util.XmlSlurper
 
-final String FAN_PATH = "/fanspd.cgi"
-
 preferences {
         input("ip", "string", title:"IP", description: "IP of Fan", defaultValue: "192.168.0.2" , required: false, displayDuringSetup: true)
         input("port", "string", title:"Port", description: "Port of Fan", defaultValue: "80" , required: false, displayDuringSetup: true)
@@ -138,7 +136,7 @@ def maximum(){
   return getSendCodeAction(1)
 }
 
-private setToLevel(int targetLevel){
+public setToLevel(int targetLevel){
 
   def level = device.latestValue("level") as Integer ?: 0
 
@@ -151,7 +149,7 @@ private setToLevel(int targetLevel){
 
   def params = [
       uri: getHostAddress(),
-      path: FAN_PATH+(increasing ? "?dir=1" : "?dir=3")
+      path: fanPath+(increasing ? "?dir=1" : "?dir=3")
   ]
 
   boolean notToLevel = true
@@ -269,7 +267,7 @@ private getSendCodeAction(code=null){
 
   def request = [
     method: "GET",
-    path: FAN_PATH + (code!=null ? "?dir=$code" : ""),
+    path: fanPath + (code!=null ? "?dir=$code" : ""),
     headers: [
         HOST: getHostAddress()
     ]
@@ -298,6 +296,10 @@ private String convertIPtoHex(ipAddress) {
 private String convertPortToHex(port) {
 	String hexport = port.toString().format( '%04x', port.toInteger() )
     return hexport
+}
+
+private String getFanPath(){
+  return "/fanspd.cgi"
 }
 
 private def title() {
