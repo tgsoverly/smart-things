@@ -156,7 +156,9 @@ public setToLevel(int targetLevel){
 
   while(notToLevel){
     try {
-        httpGet(params)
+        httpGet(params, {resp->
+          //do nothing
+        })
     } catch (Exception e) {
         log.error("Error setting maximum speed", e)
     }
