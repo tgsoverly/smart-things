@@ -160,7 +160,7 @@ public setToLevel(int targetLevel){
           //do nothing
         })
     } catch (Exception e) {
-        log.error("Error setting maximum speed $e")
+        log.error("Error setting maximum speed $e.message")
     }
     if(increasing){
       level++
@@ -221,7 +221,6 @@ def parse(response) {
 	def events = []
 
 	if(msg.status==200){
-      log.info(msg.body)
       def body = msg.body
       //clean the response
 
