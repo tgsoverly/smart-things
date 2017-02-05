@@ -169,7 +169,8 @@ public setToLevel(int targetLevel){
       level--
       notToLevel = level > targetLevel
     }
-    Thread.sleep(200)
+    // to allow the server to respond
+    pause(200)
   }
 }
 
