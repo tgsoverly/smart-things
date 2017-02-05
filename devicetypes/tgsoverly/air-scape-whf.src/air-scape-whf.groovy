@@ -305,6 +305,14 @@ private String getFanPath(){
   return "/fanspd.cgi"
 }
 
+//There appears to be no good way to make a device sleep.  This hurts me.
+private pause(ms) {
+	def start = now()
+	while (now() < start + ms) {
+    	// ouch ouch ouch
+    }
+}
+
 private def title() {
     return "AirScape Whole House Fan - Copyright © 2017 Timothy Overly"
 }
