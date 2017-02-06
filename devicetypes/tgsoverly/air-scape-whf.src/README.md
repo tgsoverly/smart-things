@@ -34,7 +34,7 @@ If you are experienced in installing devices, the code is in step 1 below.  If y
   1. Location: The location that contains the fan. (you probably only have one)
   1. Hub: The hub that has network access to the fan. (you probably only have one)
 1. Click the "Create" button at the bottom.
-1. You will now have an AirScape Device on your mobile device.  The final step is to open that device, and click the settings button (small gear in the upper right).  Then input your IP address to the fan here.  You shouldn't need to change the port from 80.  Then click done and click the "Refresh" button to get your current fan status.
+1. You will now have an AirScape Device on your mobile device.  The final step is to open that device, and click the settings button (small gear in the upper right).  Then input your IP address to the fan here.  You shouldn't need to change the port from 80.  Then click done and click the "Refresh" button to get your current fan status and configure the device.
 
 # Warnings
 

@@ -93,7 +93,7 @@ metadata {
             		[value: 3, color: "#444488"],
             		[value: 4, color: "#444499"],
             		[value: 5, color: "#4444bb"],
-                    [value: 6, color: "#4444dd"],
+                [value: 6, color: "#4444dd"],
             		[value: 7, color: "#4444ff"]
         		]
     		}
@@ -122,6 +122,9 @@ def initialize() {
 }
 
 def refresh(){
+
+  setDeviceNetworkId()
+
 	return getSendCodeAction()
 }
 
@@ -256,8 +259,6 @@ private getSendCodeAction(code=null){
   // where 1=fan speed up, 2=timer hour add, 3=fan speed down, 4=fan off
   log.debug("sending fan code ${code}")
 
-  setDeviceNetworkId()
-
   def request = [
     method: "GET",
     path: fanPath + (code!=null ? "?dir=$code" : ""),
@@ -293,14 +294,6 @@ private String convertPortToHex(port) {
 
 private String getFanPath(){
   return "/fanspd.cgi"
-}
-
-//There appears to be no good way to make a device sleep.  This hurts me.
-private pause(ms) {
-	def start = now()
-	while (now() < start + ms) {
-    	// ouch ouch ouch
-    }
 }
 
 private def title() {
