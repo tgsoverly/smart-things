@@ -147,20 +147,16 @@ public setToLevel(int targetLevel){
     return
   }
 
-  def params = [
-      uri: getHostAddress(),
-      path: fanPath+(increasing ? "?dir=1" : "?dir=3")
-  ]
+  def uri = "http://"+getHostAddress() + fanPath+(increasing ? "?dir=1" : "?dir=3")
 
+  log.debug("uri $uri")
   boolean notToLevel = true
 
   while(notToLevel){
     try {
-        httpGet(params, {resp->
-          //do nothing
-        })
-    } catch (Exception e) {
-        log.error("Error setting maximum speed ${e.printStackTrace()}")
+        uri.toURL().text
+    } catch (e) {
+        log.error("Error setting maximum speed ${e}")
     }
     if(increasing){
       level++
@@ -248,7 +244,7 @@ def parse(response) {
 
 // gets the address of the device
 private getHostAddress() {
-    return "${device.deviceNetworkId}:${port}"
+    return "${ip}:${port}"
 }
 
 public cleanResponse(String body){
