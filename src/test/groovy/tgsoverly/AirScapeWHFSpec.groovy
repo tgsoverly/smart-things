@@ -17,7 +17,8 @@ class AirScapeWHFSpec extends Specification {
     }.newInstance()
 
     script.metaClass.getPort = { return 80 }
-    script.metaClass.getIP = { return "10.0.1.10" }
+    script.metaClass.getIp = { return "10.0.1.10" }
+    script.metaClass.log = [info:{msg->},error:{msg->},debug:{msg->}]
   }
 
   def "set level up"(){
@@ -26,16 +27,11 @@ class AirScapeWHFSpec extends Specification {
       def device = GroovyMock(Device)
       device.latestValue(_) >> "2"
 
-      script.metaClass.httpGet = {params ->
-        if(params.path.contains("dir=1")){
-          upCount++
-        }
-      }
       script.metaClass.getDevice = { return device }
 
-      script.setToLevel(6)
+      def commands = script.setToLevel(6)
     then:
-      upCount==4
+      commands.findAll{it.params.path.contains("dir=1")}.size()==4
 
   }
 
@@ -45,16 +41,11 @@ class AirScapeWHFSpec extends Specification {
       def device = GroovyMock(Device)
       device.latestValue(_) >> "7"
 
-      script.metaClass.httpGet = {params ->
-        if(params.path.contains("dir=3")){
-          downCount++
-        }
-      }
       script.metaClass.getDevice = { return device }
 
-      script.setToLevel(5)
+      def commands = script.setToLevel(5)
     then:
-      downCount==2
+      commands.findAll{it.params.path.contains("dir=3")}.size()==2
 
   }
 

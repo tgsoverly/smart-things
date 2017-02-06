@@ -260,9 +260,9 @@ private getSendCodeAction(code=null){
   log.debug("sending fan code ${code}")
 
   def request = [
-    method: "GET",
-    path: fanPath + (code!=null ? "?dir=$code" : ""),
-    headers: [
+    "method": "GET",
+    "path": fanPath + (code!=null ? "?dir=$code" : ""),
+    "headers": [
         HOST: getHostAddress()
     ]
   ]
