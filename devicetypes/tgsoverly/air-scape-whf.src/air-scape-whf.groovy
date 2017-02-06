@@ -160,7 +160,7 @@ public setToLevel(int targetLevel){
           //do nothing
         })
     } catch (Exception e) {
-        log.error("Error setting maximum speed $e.message")
+        log.error("Error setting maximum speed ${e.printStackTrace()}")
     }
     if(increasing){
       level++
