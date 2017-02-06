@@ -130,10 +130,7 @@ def maximum(){
 
   sendEvent(name: "statusOfUpdate", value: "updating")
 
-  setToLevel(6)
-
-  //Trigger the last with the returned action so the response gets parsed
-  return getSendCodeAction(1)
+  return setToLevel(7)
 }
 
 public setToLevel(int targetLevel){
@@ -144,20 +141,17 @@ public setToLevel(int targetLevel){
   boolean decreasing = targetLevel < level
 
   if(!increasing && !decreasing){
-    return
+    return []
   }
 
-  def uri = "http://"+getHostAddress() + fanPath+(increasing ? "?dir=1" : "?dir=3")
+  def code =  increasing ? "1" : "3"
 
-  log.debug("uri $uri")
   boolean notToLevel = true
 
+  def commands = []
+
   while(notToLevel){
-    try {
-        uri.toURL().text
-    } catch (e) {
-        log.error("Error setting maximum speed ${e}")
-    }
+    commands.add getSendCodeAction(code)
     if(increasing){
       level++
       notToLevel = level < targetLevel
@@ -165,25 +159,26 @@ public setToLevel(int targetLevel){
       level--
       notToLevel = level > targetLevel
     }
-    // to allow the server to respond
-    pause(200)
   }
+  return commands
 }
 
 def levelUp(){
 	log.info("airscape: levelUp")
-    def level = device.latestValue("level") as Integer ?: 0
-	if (level < 7) {
-        sendEvent(name: "statusOfUpdate", value: "updating")
+  def level = device.latestValue("level") as Integer ?: 0
+
+  if (level < 7) {
+    sendEvent(name: "statusOfUpdate", value: "updating")
 		return getSendCodeAction(1)
 	}
 }
 
 def levelDown(){
 	log.info("airscape: levelDown")
-    def level = device.latestValue("level") as Integer ?: 0
-	if (level > 0) {
-        sendEvent(name: "statusOfUpdate", value: "updating")
+  def level = device.latestValue("level") as Integer ?: 0
+
+  if (level > 0) {
+      sendEvent(name: "statusOfUpdate", value: "updating")
      	if(level==0){
         	state.levelAtOff = 1
     	}
