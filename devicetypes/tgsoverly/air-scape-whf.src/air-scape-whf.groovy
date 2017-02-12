@@ -247,11 +247,13 @@ private getHostAddress() {
 
 public cleanResponse(String body){
   def regex = ~/(.*)<[^\/]/
-  // def regex = ~/.*/
-  def matcher = body =~ regex
   body = body.replaceAll(regex){all, prefix ->
     return all.replace(prefix, "")
   }
+
+  regex = ~/\<server_response\>(.|\n|\r)*<\/server_response>\n/
+  body = body.replaceAll(regex, "")
+
   return "<response>${body}</response>"
 }
 

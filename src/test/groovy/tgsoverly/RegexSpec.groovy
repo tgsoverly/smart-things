@@ -38,9 +38,11 @@ Setpoint:<Setpoint>0</Setpoint>
       }
 
       def clean = script.newInstance().cleanResponse(body)
+      println clean
       def xml = new XmlSlurper().parseText(clean)
     then:
       xml.cfm == 8687
       xml.fanspd == 7
+      xml.server_response.text()==""
   }
 }
