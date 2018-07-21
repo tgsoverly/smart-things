@@ -20,6 +20,7 @@ preferences {
 metadata {
     definition (name:"Air Scape WHF", namespace:"tgsoverly", author:"timothy@overly.me") {
         capability "Refresh"
+        capability "Polling"
 
         capability "Switch"
         capability "Switch Level"
@@ -126,6 +127,11 @@ def refresh(){
   setDeviceNetworkId()
 
 	return getSendCodeAction()
+}
+
+def poll() {
+  log.debug("airscape: polling status")
+  return getSendCodeAction()
 }
 
 def maximum(){
