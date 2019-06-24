@@ -1,5 +1,5 @@
 /**
-* AirScap Whole House Fan Device
+* AirScape Whole House Fan Device
 *
 * Control the speed of an installed fan.  Monitor the temperature from its three sensors and it ft^/min of air flow.
 *
@@ -87,16 +87,7 @@ metadata {
 
         multiAttributeTile(name:"controlPanel", type:"generic", width:6, height:4) {
     		tileAttribute("device.level", key: "PRIMARY_CONTROL") {
-        		attributeState "default", label:'${currentValue}', backgroundColors:[
-            		[value: 0, color: "#444444"],
-            		[value: 1, color: "#444466"],
-            		[value: 2, color: "#444477"],
-            		[value: 3, color: "#444488"],
-            		[value: 4, color: "#444499"],
-            		[value: 5, color: "#4444bb"],
-                [value: 6, color: "#4444dd"],
-            		[value: 7, color: "#4444ff"]
-        		]
+        		attributeState "default", label:'${currentValue}'
     		}
 
             tileAttribute("device.statusOfUpdate", key: "SECONDARY_CONTROL") {
@@ -117,8 +108,18 @@ metadata {
 
 }
 
+def installed() {
+    initialize()
+}
+
+def updated() {
+    unsubscribe()
+    initialize()
+}
+
 def initialize() {
     state.levelAtOff = 0
+    state.targetLevel = device.latestValue("level")
     refresh()
 }
 
@@ -139,60 +140,46 @@ def maximum(){
 
   sendEvent(name: "statusOfUpdate", value: "updating")
 
-  return setToLevel(7)
+  return setLevel(100)
 }
 
-public setToLevel(int targetLevel){
+public setLevel(int targetLevel){
+  targetLevel = Math.min(targetLevel, 100)
+  targetLevel = Math.max(targetLevel, 0)
+  state.targetLevel = targetLevel
+  return getNextStep()
+}
 
-  def level = device.latestValue("level") as Integer ?: 0
+def getNextStep() {
+  def level = device.latestValue("level")
+  log.debug "getNextStep level ${level} target ${state.targetLevel}"
 
-  boolean increasing = targetLevel > level
-  boolean decreasing = targetLevel < level
+  if (state.targetLevel == null) {
+    state.targetLevel = level
+  }
 
-  if(!increasing && !decreasing){
+  def roundedLevel = Math.ceil(level / 10.0)
+  def roundedTarget = Math.ceil(state.targetLevel / 10.0)
+  log.debug "getNextStep roundedLevel ${roundedLevel} roundedTarget ${roundedTarget}"
+  if (roundedTarget == roundedLevel) {
+    state.targetLevel = level
     return []
   }
 
-  def code =  increasing ? "1" : "3"
-
-  boolean notToLevel = true
-
-  def commands = []
-
-  while(notToLevel){
-    commands.add getSendCodeAction(code)
-    if(increasing){
-      level++
-      notToLevel = level < targetLevel
-    }else{
-      level--
-      notToLevel = level > targetLevel
-    }
-  }
-  return commands
+  def code = roundedTarget > roundedLevel ? "1" : "3"
+  return getSendCodeAction(code)
 }
 
 def levelUp(){
-	log.info("airscape: levelUp")
+  log.info("airscape: levelUp ${device.latestValue('level')}")
   def level = device.latestValue("level") as Integer ?: 0
-
-  if (level < 7) {
-    sendEvent(name: "statusOfUpdate", value: "updating")
-		return getSendCodeAction(1)
-	}
+  return setLevel(level + 10)
 }
 
 def levelDown(){
-	log.info("airscape: levelDown")
+  log.info("airscape: levelDown")
   def level = device.latestValue("level") as Integer ?: 0
-
-  if (level > 0) {
-      sendEvent(name: "statusOfUpdate", value: "updating")
-     	if(level==0){
-        	state.levelAtOff = 1
-    	}
-     	return getSendCodeAction(3)
-	}
+  return setLevel(level - 10)
 }
 
 def addTime(){
@@ -204,6 +191,7 @@ def addTime(){
 def on() {
 	log.debug("airscape: on")
     sendEvent(name: "statusOfUpdate", value: "updating")
+    state.targetLevel = 10
     return getSendCodeAction(1)
 }
 
@@ -211,38 +199,44 @@ def off() {
 	log.debug("airscape: off")
     sendEvent(name: "statusOfUpdate", value: "updating")
     state.levelAtOff = device.latestValue("levelAtOff") as Integer ?: 1
+    state.targetLevel = 0
     return getSendCodeAction(4)
 }
 
 def parse(response) {
-	log.debug "airscape: parse"
+	log.debug "airscape: parse current level ${device.latestValue('level')}";
    	def msg = parseLanMessage(response)
 
 	def events = []
 
-	if(msg.status==200){
+    log.debug "status ${msg.status}"
+	if (msg.status==200) {
       def body = msg.body
-      //clean the response
-
-	    def xml = new XmlSlurper().parseText(cleanResponse(msg.body))
-    	events.add createEvent(name: "cfm", value: xml.cfm)
-    	events.add createEvent(name: "power", value: xml.power)
-    	events.add createEvent(name: "timeRemaining", value: xml.timeremaining)
-    	events.add createEvent(name: "insideTemperature", value: (xml.house_temp == -99 ? "N/A" : xml.house_temp))
-    	events.add createEvent(name: "temperature", value: xml.attic_temp)
-    	events.add createEvent(name: "outsideTemperature", value: (xml.oa_temp == -99 ? "N/A" : xml.oa_temp))
-    	events.add createEvent(name: "level", value: xml.fanspd)
-      if(xml.fanspd.toInteger()>0){
-	    	events.add createEvent(name: "switch", value: "on")
-		  }else{
-	    	events.add createEvent(name: "switch", value: "off")
+      def xml = new XmlSlurper().parseText(cleanResponse(msg.body))
+      log.debug "response level ${xml.fanspd}"
+      def fanPercent = xml.fanspd.toInteger() * 10
+      events.add createEvent(name: "cfm", value: xml.cfm)
+      events.add createEvent(name: "power", value: xml.power)
+      events.add createEvent(name: "timeRemaining", value: xml.timeremaining)
+      events.add createEvent(name: "insideTemperature", value: (xml.house_temp == -99 ? "N/A" : xml.house_temp))
+      events.add createEvent(name: "temperature", value: xml.attic_temp)
+      events.add createEvent(name: "outsideTemperature", value: (xml.oa_temp == -99 ? "N/A" : xml.oa_temp))
+      if (device.latestValue("level") == state.targetLevel) {
+        state.targetLevel = fanPercent
       }
-    }else{
+      events.add createEvent(name: "level", value: fanPercent)
+      if (xml.fanspd.toInteger() > 0) {
+	    events.add createEvent(name: "switch", value: "on")
+      } else {
+        events.add createEvent(name: "switch", value: "off")
+      }
+    } else {
     	log.error("error getting response from fan $msg")
     }
 
 	//set the updating indicator back to add time
 	events.add createEvent(name:"statusOfUpdate", value: "ready")
+    events.add getNextStep()
     return events
 }
 
