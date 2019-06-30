@@ -266,6 +266,7 @@ private getSendCodeAction(code=null){
   log.debug("sending fan code ${code}")
 
   if (ip == null) {
+      log.debug "Skipping send code due to null ip"
       return null;
   }
 
@@ -289,8 +290,8 @@ private setDeviceNetworkId() {
     if (ip == null) {
         return null;
     }
-  	def iphex = convertIPtoHex(ip)
-  	def porthex = convertPortToHex(port)
+  	def iphex = convertIPtoHex(ip).toUpperCase()
+  	def porthex = convertPortToHex(port).toUpperCase()
   	device.deviceNetworkId = "$iphex:$porthex"
   	log.debug "Device Network Id set to ${iphex}:${porthex}"
 }
