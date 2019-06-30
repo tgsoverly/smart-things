@@ -115,7 +115,6 @@ def installed() {
 
 def updated() {
     log.debug "updated"
-    unsubscribe()
     initialize()
 }
 
