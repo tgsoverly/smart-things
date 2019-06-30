@@ -13,7 +13,7 @@
 import groovy.util.XmlSlurper
 
 preferences {
-        input("ip", "string", title:"IP", description: "IP of Fan", defaultValue: "192.168.0.2" , required: false, displayDuringSetup: true)
+        input("ip", "string", title:"IP", description: "IP of Fan", required: true, displayDuringSetup: true)
         input("port", "string", title:"Port", description: "Port of Fan", defaultValue: "80" , required: false, displayDuringSetup: true)
 }
 
@@ -277,7 +277,8 @@ private getSendCodeAction(code=null){
 * This is required.  If the device network id doesn't match the ip address of the fan, then the response from the fan won't be
 * passed back to the device.  The easiest is just to set it to alway match the ip in the preferences.
 */
-private setDeviceNetworkId(){
+private setDeviceNetworkId() {
+    log.debug "Trying to set device network ID with ${ip}:${port}"
   	def iphex = convertIPtoHex(ip)
   	def porthex = convertPortToHex(port)
   	device.deviceNetworkId = "$iphex:$porthex"
