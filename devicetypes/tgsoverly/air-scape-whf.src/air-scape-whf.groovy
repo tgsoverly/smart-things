@@ -262,6 +262,10 @@ private getSendCodeAction(code=null){
   // where 1=fan speed up, 2=timer hour add, 3=fan speed down, 4=fan off
   log.debug("sending fan code ${code}")
 
+  if (ip == null) {
+      return null;
+  }
+
   def request = [
     method: "GET",
     path: fanPath + (code!=null ? "?dir=$code" : ""),
@@ -279,6 +283,9 @@ private getSendCodeAction(code=null){
 */
 private setDeviceNetworkId() {
     log.debug "Trying to set device network ID with ${ip}:${port}"
+    if (ip == null) {
+        return null;
+    }
   	def iphex = convertIPtoHex(ip)
   	def porthex = convertPortToHex(port)
   	device.deviceNetworkId = "$iphex:$porthex"
