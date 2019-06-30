@@ -109,25 +109,29 @@ metadata {
 }
 
 def installed() {
+    log.debug "installed"
     initialize()
 }
 
 def updated() {
+    log.debug "updated"
     unsubscribe()
     initialize()
 }
 
 def initialize() {
+    log.debug "initialize"
     state.levelAtOff = 0
-    state.targetLevel = device.latestValue("level") as Integer ?: 0
+    def level = device.latestValue("level") as Integer ?: 0
+    log.debug "setting target level to ${level}"
+    state.targetLevel = level
     refresh()
 }
 
 def refresh(){
-
+  log.debug "refresh"
   setDeviceNetworkId()
-
-	return getSendCodeAction()
+  return getSendCodeAction()
 }
 
 def poll() {
