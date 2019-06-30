@@ -119,7 +119,7 @@ def updated() {
 
 def initialize() {
     state.levelAtOff = 0
-    state.targetLevel = device.latestValue("level")
+    state.targetLevel = device.latestValue("level") as Integer ?: 0
     refresh()
 }
 
@@ -151,7 +151,7 @@ public setLevel(int targetLevel){
 }
 
 def getNextStep() {
-  def level = device.latestValue("level")
+  def level = device.latestValue("level") as Integer ?: 0
   log.debug "getNextStep level ${level} target ${state.targetLevel}"
 
   if (state.targetLevel == null) {
@@ -221,7 +221,8 @@ def parse(response) {
       events.add createEvent(name: "insideTemperature", value: (xml.house_temp == -99 ? "N/A" : xml.house_temp))
       events.add createEvent(name: "temperature", value: xml.attic_temp)
       events.add createEvent(name: "outsideTemperature", value: (xml.oa_temp == -99 ? "N/A" : xml.oa_temp))
-      if (device.latestValue("level") == state.targetLevel) {
+      def level = device.latestValue("level") as Integer ?: 0
+      if (level == state.targetLevel) {
         state.targetLevel = fanPercent
       }
       events.add createEvent(name: "level", value: fanPercent)
